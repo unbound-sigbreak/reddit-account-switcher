@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reddit Account Switcher</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="popup-shell">
+    <main class="panel popup-panel">
+      <header class="hero">
+        <p class="eyebrow">Reddit Account Switcher</p>
+        <h1>Choose account by subreddit</h1>
+        <p class="hero-copy" id="popupSubtitle">
+          Inspect the active Reddit tab and adjust its mapping.
+        </p>
+      </header>
+
+      <section class="card">
+        <div class="stat-row">
+          <span class="stat-label">Current subreddit</span>
+          <strong class="stat-value" id="currentSubreddit">Not on Reddit</strong>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Current account</span>
+          <strong class="stat-value" id="currentContainer">Unknown</strong>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Mapped account</span>
+          <strong class="stat-value" id="mappedContainer">Not configured</strong>
+        </div>
+      </section>
+
+      <section class="card">
+        <label class="field">
+          <span>Account for current subreddit</span>
+          <select id="mappingSelect"></select>
+        </label>
+
+        <div class="button-row">
+          <button id="assignButton" type="button">Assign to current account</button>
+          <button id="reopenButton" type="button" class="button-secondary">
+            Open in mapped account
+          </button>
+        </div>
+
+        <div class="button-row">
+          <button id="loginButton" type="button" class="button-secondary">
+            Open Reddit login
+          </button>
+          <button id="optionsButton" type="button" class="button-ghost">
+            Open options
+          </button>
+        </div>
+
+        <p class="status" id="popupStatus" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="lib/shared.js"></script>
+    <script src="lib/storage.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reddit Account Switcher Accounts</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="page-shell">
+    <main class="page-layout">
+      <header class="hero hero-large">
+        <p class="eyebrow">Reddit Account Switcher</p>
+        <h1>Account routing options</h1>
+        <section class="notice-banner" id="riskWarning" role="note" hidden>
+          <div class="notice-copy">
+            <h2 class="notice-title">Important warning</h2>
+            <p class="notice-text">
+              This tool does not hide your identity from Reddit and will not
+              stop Reddit from detecting vote manipulation or ban evasion. If
+              any of your accounts are banned from a subreddit and you use this
+              tool to bypass that ban, Reddit may permanently ban all of your
+              accounts. You are responsible for following
+              <a
+                class="notice-link"
+                href="https://redditinc.com/policies/reddit-rules"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Reddit&rsquo;s sitewide rules
+              </a>.
+            </p>
+          </div>
+          <button
+            id="dismissWarningButton"
+            type="button"
+            class="button-ghost notice-dismiss-button"
+          >
+            Dismiss
+          </button>
+        </section>
+        <p class="hero-copy">
+          Choose the default account, label each account, and manage subreddit
+          rules. Each account is backed by a Firefox container.
+        </p>
+      </header>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Default account</h2>
+            <p>Used for Reddit pages that do not have a direct subreddit mapping.</p>
+          </div>
+          <button id="saveDefaultButton" type="button">Save default account</button>
+        </div>
+
+        <label class="field">
+          <span>Default account</span>
+          <select id="defaultContainerSelect"></select>
+        </label>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Accounts</h2>
+            <p>These account labels appear in the popup and subreddit rules.</p>
+          </div>
+          <div class="button-row">
+            <button
+              id="toggleCreateAccountButton"
+              type="button"
+              class="button-secondary"
+              aria-expanded="false"
+            >
+              Add new account
+            </button>
+            <button id="saveAccountsButton" type="button">Save labels</button>
+          </div>
+        </div>
+
+        <div id="createAccountPanel" class="create-account-panel" hidden>
+          <div class="split-grid">
+            <label class="field">
+              <span>New account name</span>
+              <input id="createAccountName" type="text" placeholder="Privacy" />
+            </label>
+
+            <label class="field">
+              <span>Container color</span>
+              <select id="createAccountColor"></select>
+            </label>
+
+            <label class="field">
+              <span>Container icon</span>
+              <select id="createAccountIcon"></select>
+            </label>
+          </div>
+
+          <div class="button-row create-account-actions">
+            <button id="createAccountButton" type="button">Create account</button>
+          </div>
+
+          <p class="helper-copy">
+            Enter a new account name, choose the Firefox container color and icon,
+            then click “Create account”. That creates the Firefox container, adds
+            it to the account dropdowns, and opens Reddit login for that account.
+            “Save labels” only renames the accounts already listed below. Firefox
+            stores extension-managed accounts with a `ras-` prefix, but that
+            prefix is hidden in this UI.
+          </p>
+        </div>
+
+        <div class="stack-list" id="accountList"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Subreddit rules</h2>
+            <p>Map individual subreddits to specific accounts.</p>
+          </div>
+          <div class="button-row">
+            <button id="addRuleButton" type="button" class="button-secondary">
+              Add rule
+            </button>
+            <button id="saveRulesButton" type="button">Save rules</button>
+          </div>
+        </div>
+
+        <div class="rules-grid rules-grid-head">
+          <span>Subreddit</span>
+          <span>Account</span>
+          <span>Action</span>
+        </div>
+        <div id="rulesList"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Import and export</h2>
+            <p>Move your configuration in and out as JSON.</p>
+          </div>
+          <button id="exportButton" type="button" class="button-secondary">
+            Export JSON
+          </button>
+        </div>
+
+        <label class="file-input">
+          <span>Import JSON</span>
+          <input id="importInput" type="file" accept="application/json" />
+        </label>
+
+        <pre class="code-panel" id="configPreview"></pre>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Appearance</h2>
+            <p>
+              Follow the system theme when Firefox exposes it, or force light or
+              dark for the extension pages.
+            </p>
+          </div>
+        </div>
+
+        <label class="field field-narrow">
+          <span>Theme</span>
+          <select id="themeSelect">
+            <option value="system">System</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+
+        <div class="button-row">
+          <button
+            id="showWarningButton"
+            type="button"
+            class="button-secondary"
+          >
+            Show warning again
+          </button>
+        </div>
+      </section>
+
+      <p class="status status-wide" id="optionsStatus" role="status" aria-live="polite"></p>
+    </main>
+
+    <script src="lib/shared.js"></script>
+    <script src="lib/storage.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>
