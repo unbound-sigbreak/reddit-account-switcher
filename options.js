@@ -14,6 +14,7 @@
     createAccountName: document.getElementById("createAccountName"),
     defaultContainerSelect: document.getElementById("defaultContainerSelect"),
     dismissWarningButton: document.getElementById("dismissWarningButton"),
+    doNotCloseTabsCheckbox: document.getElementById("doNotCloseTabsCheckbox"),
     exportButton: document.getElementById("exportButton"),
     importInput: document.getElementById("importInput"),
     optionsStatus: document.getElementById("optionsStatus"),
@@ -278,6 +279,7 @@
       selectedValue: state.config.defaultContainerId,
       includeEmptyOption: true
     });
+    elements.doNotCloseTabsCheckbox.checked = !!state.config.doNotCloseTabs;
     elements.riskWarning.hidden = state.warningDismissed;
     elements.showWarningButton.disabled = !state.warningDismissed;
     elements.themeSelect.value = app.normalizeThemePreference({
@@ -341,14 +343,15 @@
     setStatus({ message: "Saved the theme preference.", tone: "success" });
   };
 
-  const saveDefaultContainer = async () => {
-    await app.Storage.patchConfig({
+  const saveRoutingSettings = async () => {
+    state.config = await app.Storage.patchConfig({
       patch: {
-        defaultContainerId: elements.defaultContainerSelect.value
+        defaultContainerId: elements.defaultContainerSelect.value,
+        doNotCloseTabs: elements.doNotCloseTabsCheckbox.checked
       }
     });
-    await loadState();
-    setStatus({ message: "Saved the default account.", tone: "success" });
+    render();
+    setStatus({ message: "Saved the routing settings.", tone: "success" });
   };
 
   const saveAccountLabels = async () => {
@@ -544,7 +547,13 @@
   };
 
   elements.saveDefaultButton.addEventListener("click", () => {
-    saveDefaultContainer().catch((error) => {
+    saveRoutingSettings().catch((error) => {
+      setStatus({ message: error.message, tone: "error" });
+    });
+  });
+
+  elements.doNotCloseTabsCheckbox.addEventListener("change", () => {
+    saveRoutingSettings().catch((error) => {
       setStatus({ message: error.message, tone: "error" });
     });
   });

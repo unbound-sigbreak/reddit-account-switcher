@@ -182,7 +182,30 @@ const buildRoutingInfoForTab = async ({ tab }) => {
   };
 };
 
-const rerouteTab = async ({ tab, targetContainerId }) => {
+const restoreSourceTab = async ({ tab }) => {
+  const parsed = app.parseRedditUrl({ rawUrl: tab.url });
+
+  if (typeof browser.tabs.goBack === "function") {
+    try {
+      await browser.tabs.goBack(tab.id);
+      return { restored: true, reason: "history-back" };
+    } catch (error) {
+      // Fall back to a safe non-subreddit page when there is no back entry.
+    }
+  }
+
+  if (!parsed.isReddit || !parsed.host) {
+    return { restored: false, reason: "no-fallback" };
+  }
+
+  await browser.tabs.update(tab.id, {
+    url: "https://" + parsed.host + "/"
+  });
+
+  return { restored: true, reason: "host-root" };
+};
+
+const rerouteTab = async ({ tab, targetContainerId, doNotCloseTabs }) => {
   const fingerprint = buildGuardFingerprint({ tab, targetContainerId });
 
   if (hasSourceGuard({ tabId: tab.id, fingerprint })) {
@@ -207,7 +230,16 @@ const rerouteTab = async ({ tab, targetContainerId }) => {
     const createdTab = await browser.tabs.create(createDetails);
 
     setCreatedGuard({ tabId: createdTab.id, fingerprint });
-    await browser.tabs.remove(tab.id);
+
+    if (doNotCloseTabs) {
+      try {
+        await restoreSourceTab({ tab });
+      } catch (error) {
+        logBackgroundError({ error });
+      }
+    } else {
+      await browser.tabs.remove(tab.id);
+    }
 
     return {
       rerouted: true,
@@ -240,7 +272,11 @@ const maybeRouteTab = async ({ tab }) => {
     return { routed: false, reason: "login-flow" };
   }
 
-  const { info } = await buildRoutingInfoForTab({ tab });
+  const { config, info } = await buildRoutingInfoForTab({ tab });
+
+  if (!info.routingEligible) {
+    return { routed: false, reason: "no-subreddit" };
+  }
 
   if (!info.targetContainerId) {
     return { routed: false, reason: "no-target-container" };
@@ -265,7 +301,8 @@ const maybeRouteTab = async ({ tab }) => {
 
   const result = await rerouteTab({
     tab,
-    targetContainerId: info.targetContainerId
+    targetContainerId: info.targetContainerId,
+    doNotCloseTabs: config.doNotCloseTabs
   });
   return {
     routed: result.rerouted,
@@ -290,10 +327,14 @@ const rerouteOpenRedditTabs = async () => {
 
 const rerouteUsingMapping = async ({ tabId }) => {
   const tab = await browser.tabs.get(tabId);
-  const { info } = await buildRoutingInfoForTab({ tab });
+  const { config, info } = await buildRoutingInfoForTab({ tab });
 
   if (!info.isReddit) {
     return { ok: false, reason: "not-reddit" };
+  }
+
+  if (!info.routingEligible) {
+    return { ok: false, reason: "no-subreddit" };
   }
 
   if (!info.targetContainerId) {
@@ -310,7 +351,8 @@ const rerouteUsingMapping = async ({ tabId }) => {
 
   await rerouteTab({
     tab,
-    targetContainerId: info.targetContainerId
+    targetContainerId: info.targetContainerId,
+    doNotCloseTabs: config.doNotCloseTabs
   });
   return { ok: true, rerouted: true };
 };

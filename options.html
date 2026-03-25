@@ -48,15 +48,29 @@
         <div class="section-head">
           <div>
             <h2>Default account</h2>
-            <p>Used for Reddit pages that do not have a direct subreddit mapping.</p>
+            <p>Used for subreddit URLs that do not have a direct account mapping.</p>
           </div>
-          <button id="saveDefaultButton" type="button">Save default account</button>
+          <button id="saveDefaultButton" type="button">Save routing settings</button>
         </div>
 
         <label class="field">
           <span>Default account</span>
           <select id="defaultContainerSelect"></select>
         </label>
+
+        <div class="toggle-field">
+          <label class="toggle-control" for="doNotCloseTabsCheckbox">
+            <input id="doNotCloseTabsCheckbox" type="checkbox" />
+            <span class="toggle-copy">
+              <span>Do not close tabs</span>
+              <small>
+                When a subreddit opens in the wrong account, open the correct
+                account in a new tab and send the original tab back instead of
+                closing it.
+              </small>
+            </span>
+          </label>
+        </div>
       </section>
 
       <section class="card">

@@ -15,9 +15,10 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 
 - Each account in the extension is backed by a Firefox container.
 - You choose a default account and optional per-subreddit rules.
-- When a Reddit tab opens or changes URL, the extension checks which account should handle it.
+- When a Reddit tab opens or changes URL to a path containing `/r/<subreddit>`, the extension checks which account should handle it.
 - If the tab is already in the right account, nothing happens.
 - If the tab is in the wrong account, the extension reopens the same URL in the correct account.
+- Other Reddit pages such as profiles, inbox, and notifications stay in their current account unless you move them manually.
 
 ## Features
 
@@ -27,6 +28,8 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 - Mark extension-managed Firefox containers with the `ras-` prefix while hiding that prefix in the extension UI.
 - Reopen a Reddit tab in the correct account when it lands in the wrong account.
 - Fall back to a default account when a subreddit has no explicit rule.
+- Ignore Reddit URLs that do not include `/r/<subreddit>/`, so profiles and notification pages are not forced back to the default account.
+- Optionally keep the original tab open and send it back instead of closing it after a reroute.
 - Handle Reddit URL changes that happen without a full page reload.
 - Prevent reroute loops with short-lived tab guards.
 - Show current subreddit, current account, and mapped account in the popup.
@@ -62,7 +65,7 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 - `popup.html` + `popup.js`
   Quick view and controls for the active tab.
 - `options.html` + `options.js`
-  Rule management, default account selection, account labels, and import/export.
+  Rule management, default account selection, routing behavior, account labels, and import/export.
 - `styles.css`
   Shared extension styling.
 
@@ -80,6 +83,7 @@ Instead of logging out and back in, the extension uses Firefox containers as the
     "privacy": "firefox-container-2",
     "gaming": "firefox-container-3"
   },
+  "doNotCloseTabs": false,
   "themePreference": "system"
 }
 ```
@@ -118,8 +122,10 @@ npm run check
 4. Open `https://www.reddit.com/r/privacy/` in the wrong account container.
 5. Confirm the extension reopens the tab in the mapped account and closes the old tab.
 6. Open an unmapped subreddit and confirm it routes to the default account.
-7. Use Reddit's in-page navigation and confirm the route still updates after URL changes.
-8. Confirm the popup shows the current subreddit and lets you update the rule.
+7. Open a Reddit profile, inbox, or notifications page and confirm it stays in the current account.
+8. Turn on `Do not close tabs`, open a subreddit in the wrong account, and confirm the extension opens the mapped account in a new tab while the original tab goes back or lands on Reddit home.
+9. Use Reddit's in-page navigation and confirm the route still updates after URL changes.
+10. Confirm the popup shows the current subreddit and lets you update the rule.
 
 ## AMO Submission Notes
 
@@ -146,6 +152,7 @@ All extension data stays in local extension storage. Stored data is limited to a
 
 - The extension assumes the user manages Reddit accounts manually inside Firefox containers.
 - The UI talks about accounts, while the implementation uses Firefox containers as the technical session boundary.
+- Automatic rerouting only applies to URLs that include `/r/<subreddit>`.
 - Only `ras-` prefixed Firefox containers are treated as extension-managed accounts in the UI and delete flow.
 - Firefox requires the `cookies` permission for the contextual identities API; this extension still does not read or rewrite Reddit cookies.
 - If a stored mapping points to a missing container, the UI keeps that reference visible so it can be corrected.

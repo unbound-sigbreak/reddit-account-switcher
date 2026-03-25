@@ -232,6 +232,42 @@ body {
   color: var(--muted);
 }
 
+.toggle-field {
+  display: block;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+}
+
+.toggle-control {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.toggle-control input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+.toggle-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.toggle-copy small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 select,
 button,
 input[type="text"],

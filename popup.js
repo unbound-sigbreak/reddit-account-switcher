@@ -80,9 +80,21 @@
       return;
     }
 
-    elements.currentSubreddit.textContent = info.subreddit
-      ? "r/" + info.subreddit
-      : "No subreddit detected";
+    if (!info.routingEligible) {
+      elements.currentSubreddit.textContent = "No subreddit in URL";
+      elements.currentContainer.textContent = info.currentAccountLabel;
+      elements.mappedContainer.textContent = "No automatic routing";
+      elements.popupSubtitle.textContent =
+        "Only Reddit URLs with /r/... are routed automatically. This page stays in its current account.";
+      fillSelectOptions();
+      elements.mappingSelect.disabled = true;
+      elements.assignButton.disabled = true;
+      elements.loginButton.disabled = true;
+      elements.reopenButton.disabled = true;
+      return;
+    }
+
+    elements.currentSubreddit.textContent = "r/" + info.subreddit;
     elements.currentContainer.textContent = info.currentAccountLabel;
     elements.mappedContainer.textContent = info.targetExists
       ? info.targetAccountLabel
@@ -91,9 +103,7 @@
           ? info.targetAccountLabel + " (needs Firefox container)"
           : "Not configured"
       );
-    elements.popupSubtitle.textContent = info.subreddit
-      ? "Current account rule for r/" + info.subreddit + "."
-      : "This Reddit URL has no subreddit and will use the default account.";
+    elements.popupSubtitle.textContent = "Current account rule for r/" + info.subreddit + ".";
 
     fillSelectOptions();
     elements.mappingSelect.disabled = !info.subreddit;
