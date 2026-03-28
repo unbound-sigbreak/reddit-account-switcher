@@ -453,7 +453,7 @@
     const nextConfig = {
       ...state.config,
       accounts: nextAccounts,
-      defaultContainerId: state.config.defaultContainerId || context.cookieStoreId
+      defaultContainerId: state.config.defaultContainerId
     };
 
     await app.Storage.saveConfig({ config: nextConfig });

@@ -156,14 +156,6 @@ const ensureSeedConfig = async () => {
     changed = true;
   }
 
-  if (!config.defaultContainerId && managedContainers.length) {
-    nextConfig = {
-      ...nextConfig,
-      defaultContainerId: managedContainers[0].cookieStoreId
-    };
-    changed = true;
-  }
-
   if (changed) {
     await app.Storage.saveConfig({ config: nextConfig });
   }
