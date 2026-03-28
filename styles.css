@@ -1,4 +1,5 @@
-:root {
+:root,
+:root[data-theme="warm"] {
   color-scheme: dark;
   --bg: linear-gradient(180deg, #171210 0%, #211916 100%);
   --panel: rgba(31, 24, 21, 0.94);
@@ -26,7 +27,7 @@
   --font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
 }
 
-:root[data-theme="light"] {
+:root[data-theme="cool"] {
   color-scheme: light;
   --bg: linear-gradient(180deg, #fcf5ec 0%, #fffdf8 100%);
   --panel: rgba(255, 252, 247, 0.94);
@@ -50,6 +51,74 @@
   --ghost-border: rgba(157, 96, 49, 0.22);
   --code-bg: #241915;
   --code-text: #f6e9dd;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #040506;
+  --panel: #0c1014;
+  --panel-border: #202835;
+  --text: #eef6ff;
+  --muted: #a4b0c2;
+  --accent: #00b6ff;
+  --accent-strong: #d8f9ff;
+  --accent-soft: rgba(0, 182, 255, 0.18);
+  --surface: #090b0f;
+  --success: #39ff79;
+  --warning: #ffbc3a;
+  --error: #ff1f5a;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+  --hero-glow: transparent;
+  --hero-from: #0c1014;
+  --hero-to: #0c1014;
+  --field-border: #202835;
+  --border-soft: rgba(208, 215, 226, 0.12);
+  --secondary-bg: rgba(57, 255, 121, 0.16);
+  --ghost-border: #364255;
+  --code-bg: #07090c;
+  --code-text: #c7f6ff;
+  --font-sans: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Monaco,
+    "Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console",
+    "Roboto Mono", "Droid Sans Mono", "Noto Sans Mono", "Ubuntu Mono",
+    "DejaVu Sans Mono", "Liberation Mono", "Courier New", monospace;
+  --font-serif: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Monaco,
+    "Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console",
+    "Roboto Mono", "Droid Sans Mono", "Noto Sans Mono", "Ubuntu Mono",
+    "DejaVu Sans Mono", "Liberation Mono", "Courier New", monospace;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef3f9;
+  --panel: #f8fbff;
+  --panel-border: #c8d4e3;
+  --text: #132237;
+  --muted: #465a73;
+  --accent: #007edb;
+  --accent-strong: #005589;
+  --accent-soft: rgba(0, 126, 219, 0.12);
+  --surface: #ffffff;
+  --success: #12b84b;
+  --warning: #cc7a00;
+  --error: #cc1f4d;
+  --shadow: 0 12px 28px rgba(16, 32, 55, 0.08);
+  --hero-glow: transparent;
+  --hero-from: #f8fbff;
+  --hero-to: #f8fbff;
+  --field-border: #c8d4e3;
+  --border-soft: rgba(16, 32, 55, 0.08);
+  --secondary-bg: rgba(18, 184, 75, 0.1);
+  --ghost-border: #a6b6c9;
+  --code-bg: #edf4fb;
+  --code-text: #0b5e8f;
+  --font-sans: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Monaco,
+    "Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console",
+    "Roboto Mono", "Droid Sans Mono", "Noto Sans Mono", "Ubuntu Mono",
+    "DejaVu Sans Mono", "Liberation Mono", "Courier New", monospace;
+  --font-serif: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Monaco,
+    "Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console",
+    "Roboto Mono", "Droid Sans Mono", "Noto Sans Mono", "Ubuntu Mono",
+    "DejaVu Sans Mono", "Liberation Mono", "Courier New", monospace;
 }
 
 @media (prefers-color-scheme: light) {
@@ -474,6 +543,196 @@ button:disabled {
 
 .field-narrow {
   max-width: 280px;
+}
+
+:root[data-theme="dark"] .hero,
+:root[data-theme="light"] .hero {
+  background: var(--panel);
+}
+
+:root[data-theme="dark"] .hero h1,
+:root[data-theme="light"] .hero h1 {
+  letter-spacing: -0.04em;
+}
+
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="light"] .eyebrow {
+  color: var(--muted);
+}
+
+:root[data-theme="dark"] .card,
+:root[data-theme="light"] .card {
+  background: var(--panel);
+  border-color: var(--panel-border);
+  border-radius: 20px;
+}
+
+:root[data-theme="dark"] .toggle-field,
+:root[data-theme="light"] .toggle-field,
+:root[data-theme="dark"] .list-row,
+:root[data-theme="light"] .list-row,
+:root[data-theme="dark"] .rule-row,
+:root[data-theme="light"] .rule-row {
+  background: var(--surface);
+  border-color: var(--field-border);
+  border-radius: 14px;
+}
+
+:root[data-theme="dark"] .notice-banner,
+:root[data-theme="light"] .notice-banner {
+  border-color: color-mix(in srgb, var(--warning) 36%, var(--panel-border));
+  background: color-mix(in srgb, var(--warning) 10%, var(--panel));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warning) 8%, transparent);
+}
+
+:root[data-theme="dark"] .code-panel,
+:root[data-theme="light"] .code-panel {
+  border: 1px solid var(--field-border);
+}
+
+:root[data-theme="dark"] .card,
+:root[data-theme="light"] .card,
+:root[data-theme="dark"] .toggle-field,
+:root[data-theme="light"] .toggle-field,
+:root[data-theme="dark"] .list-row,
+:root[data-theme="light"] .list-row,
+:root[data-theme="dark"] .rule-row,
+:root[data-theme="light"] .rule-row,
+:root[data-theme="dark"] .notice-banner,
+:root[data-theme="light"] .notice-banner,
+:root[data-theme="dark"] .code-panel,
+:root[data-theme="light"] .code-panel,
+:root[data-theme="dark"] button,
+:root[data-theme="light"] button,
+:root[data-theme="dark"] select,
+:root[data-theme="light"] select,
+:root[data-theme="dark"] input[type="text"],
+:root[data-theme="light"] input[type="text"],
+:root[data-theme="dark"] input[type="file"],
+:root[data-theme="light"] input[type="file"] {
+  transition:
+    background-color 120ms ease-out,
+    border-color 120ms ease-out,
+    box-shadow 120ms ease-out,
+    color 120ms ease-out,
+    transform 120ms ease-out;
+}
+
+:root[data-theme="dark"] .card:hover,
+:root[data-theme="light"] .card:hover,
+:root[data-theme="dark"] .toggle-field:hover,
+:root[data-theme="light"] .toggle-field:hover,
+:root[data-theme="dark"] .list-row:hover,
+:root[data-theme="light"] .list-row:hover,
+:root[data-theme="dark"] .rule-row:hover,
+:root[data-theme="light"] .rule-row:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--field-border));
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+:root[data-theme="dark"] select,
+:root[data-theme="light"] select,
+:root[data-theme="dark"] input[type="text"],
+:root[data-theme="light"] input[type="text"],
+:root[data-theme="dark"] input[type="file"],
+:root[data-theme="light"] input[type="file"] {
+  min-height: 44px;
+  border-color: var(--field-border);
+  border-radius: 13px;
+  background: var(--surface);
+}
+
+:root[data-theme="dark"] select:hover,
+:root[data-theme="light"] select:hover,
+:root[data-theme="dark"] input[type="text"]:hover,
+:root[data-theme="light"] input[type="text"]:hover,
+:root[data-theme="dark"] input[type="file"]:hover,
+:root[data-theme="light"] input[type="file"]:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+:root[data-theme="dark"] button:focus-visible,
+:root[data-theme="light"] button:focus-visible,
+:root[data-theme="dark"] select:focus-visible,
+:root[data-theme="light"] select:focus-visible,
+:root[data-theme="dark"] input[type="text"]:focus-visible,
+:root[data-theme="light"] input[type="text"]:focus-visible,
+:root[data-theme="dark"] input[type="file"]:focus-visible,
+:root[data-theme="light"] input[type="file"]:focus-visible {
+  outline: none;
+  border-color: var(--warning);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning) 24%, transparent);
+}
+
+:root[data-theme="dark"] button,
+:root[data-theme="light"] button {
+  appearance: none;
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--field-border));
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent-strong);
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] button:hover,
+:root[data-theme="light"] button:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+:root[data-theme="dark"] button:active,
+:root[data-theme="light"] button:active {
+  transform: translateY(0);
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 16%, var(--surface));
+}
+
+:root[data-theme="dark"] .button-secondary,
+:root[data-theme="light"] .button-secondary {
+  border-color: color-mix(in srgb, var(--success) 34%, var(--field-border));
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+  color: color-mix(in srgb, var(--success) 70%, var(--text));
+}
+
+:root[data-theme="dark"] .button-secondary:hover,
+:root[data-theme="light"] .button-secondary:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent-strong);
+}
+
+:root[data-theme="dark"] .button-secondary:active,
+:root[data-theme="light"] .button-secondary:active {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 16%, var(--surface));
+}
+
+:root[data-theme="dark"] .button-ghost,
+:root[data-theme="light"] .button-ghost {
+  border-color: var(--ghost-border);
+  background: transparent;
+  color: var(--text);
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .button-ghost:hover,
+:root[data-theme="light"] .button-ghost:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .button-ghost:active,
+:root[data-theme="light"] .button-ghost:active {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
 }
 
 @media (max-width: 720px) {

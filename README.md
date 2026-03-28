@@ -40,7 +40,7 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 - Keep those extension-opened login tabs in the chosen account while Reddit finishes its non-subreddit login redirects.
 - Manage the default account, account labels, and subreddit rules from the options page.
 - Import and export configuration as JSON.
-- Choose a light, dark, or system theme from the options page.
+- Choose Dark, Warm, Cool, Light, or System from the options page.
 
 ## Scope Boundaries
 
@@ -167,5 +167,6 @@ All extension data stays in local extension storage. Stored data is limited to a
 - Firefox requires the `cookies` permission for the contextual identities API; this extension still does not read or rewrite Reddit cookies.
 - If a stored mapping points to a missing container, the UI keeps that reference visible so it can be corrected.
 - Subreddit rules now store both the mapped account and an optional `openLinksWithAssignedContainer` flag. Older string-only imports still load with that checkbox off by default, and the earlier `openLinksInDefaultContainer` field is translated automatically.
+- System theme follows the existing Warm and Cool pair, while the new Dark and Light options use the styleguide visual system.
 - On first run, the extension seeds account labels from live Firefox containers and uses the first detected container as the default if none is set.
 - Firefox currently loads this extension via `background.scripts` in Manifest V3 instead of `background.service_worker`.
