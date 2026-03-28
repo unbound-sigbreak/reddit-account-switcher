@@ -28,6 +28,7 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 - Mark extension-managed Firefox containers with the `ras-` prefix while hiding that prefix in the extension UI.
 - Reopen a Reddit tab in the correct account when it lands in the wrong account.
 - Fall back to a default account when a subreddit has no explicit rule.
+- Leave child tabs in Firefox's default tab context by default, or opt a subreddit into keeping them in its assigned container.
 - Ignore Reddit URLs that do not include `/r/<subreddit>/`, so profiles and notification pages are not forced back to the default account.
 - Optionally keep the original tab open and send it back instead of closing it after a reroute.
 - Handle Reddit URL changes that happen without a full page reload.
@@ -80,8 +81,14 @@ Instead of logging out and back in, the extension uses Firefox containers as the
     { "label": "gaming", "containerId": "firefox-container-3" }
   ],
   "subredditRules": {
-    "privacy": "firefox-container-2",
-    "gaming": "firefox-container-3"
+    "privacy": {
+      "containerId": "firefox-container-2",
+      "openLinksWithAssignedContainer": true
+    },
+    "gaming": {
+      "containerId": "firefox-container-3",
+      "openLinksWithAssignedContainer": false
+    }
   },
   "doNotCloseTabs": false,
   "themePreference": "system"
@@ -96,8 +103,9 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 4. Open the extension options page.
 5. Create accounts directly in the extension, or use existing Firefox containers if you already have them.
 6. Use `Open Reddit login` for an account and sign into Reddit manually in that account.
-7. Choose a default account.
+7. Choose a default account, or leave it as `No default account` to keep unmapped subreddits in the current account.
 8. Add subreddit rules or use the popup to assign the current subreddit to the current account.
+9. Leave `Open with assigned container` off if links from that subreddit should open in Firefox's default tab context. Turn it on only when those child tabs should stay in the assigned container.
 
 ## Validation
 
@@ -126,6 +134,8 @@ npm run check
 8. Turn on `Do not close tabs`, open a subreddit in the wrong account, and confirm the extension opens the mapped account in a new tab while the original tab goes back or lands on Reddit home.
 9. Use Reddit's in-page navigation and confirm the route still updates after URL changes.
 10. Confirm the popup shows the current subreddit and lets you update the rule.
+11. For a rule with `Open with assigned container` turned off, open a link in a new tab from that subreddit and confirm the new tab reopens outside the originating account unless the new tab has its own subreddit route.
+12. Turn `Open with assigned container` on for a subreddit rule and confirm links opened from that subreddit stay in the assigned container unless the new tab has its own subreddit route.
 
 ## AMO Submission Notes
 
@@ -156,5 +166,6 @@ All extension data stays in local extension storage. Stored data is limited to a
 - Only `ras-` prefixed Firefox containers are treated as extension-managed accounts in the UI and delete flow.
 - Firefox requires the `cookies` permission for the contextual identities API; this extension still does not read or rewrite Reddit cookies.
 - If a stored mapping points to a missing container, the UI keeps that reference visible so it can be corrected.
+- Subreddit rules now store both the mapped account and an optional `openLinksWithAssignedContainer` flag. Older string-only imports still load with that checkbox off by default, and the earlier `openLinksInDefaultContainer` field is translated automatically.
 - On first run, the extension seeds account labels from live Firefox containers and uses the first detected container as the default if none is set.
 - Firefox currently loads this extension via `background.scripts` in Manifest V3 instead of `background.service_worker`.

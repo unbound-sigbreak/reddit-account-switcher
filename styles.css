@@ -416,7 +416,7 @@ button:disabled {
 
 .rules-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px) minmax(150px, 180px) auto;
   gap: 12px;
   align-items: center;
 }
@@ -454,6 +454,22 @@ button:disabled {
 
 .inline-input {
   min-width: 0;
+}
+
+.rule-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.rule-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
 .field-narrow {

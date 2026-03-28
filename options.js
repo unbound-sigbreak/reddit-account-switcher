@@ -17,6 +17,7 @@
     doNotCloseTabsCheckbox: document.getElementById("doNotCloseTabsCheckbox"),
     exportButton: document.getElementById("exportButton"),
     importInput: document.getElementById("importInput"),
+    noDefaultAccountHint: document.getElementById("noDefaultAccountHint"),
     optionsStatus: document.getElementById("optionsStatus"),
     riskWarning: document.getElementById("riskWarning"),
     rulesList: document.getElementById("rulesList"),
@@ -90,7 +91,11 @@
     select.textContent = "";
 
     if (includeEmptyOption) {
-      select.appendChild(createOption({ value: "", label: "Choose an account" }));
+      const emptyLabel =
+        select === elements.defaultContainerSelect
+          ? "No default account"
+          : "Choose an account";
+      select.appendChild(createOption({ value: "", label: emptyLabel }));
     }
 
     for (const choice of app.getAccountChoices({
@@ -105,6 +110,10 @@
     }
 
     select.value = selectedValue ?? "";
+  };
+
+  const updateNoDefaultAccountHint = () => {
+    elements.noDefaultAccountHint.hidden = !!elements.defaultContainerSelect.value;
   };
 
   const getVisibleAccountChoices = () =>
@@ -186,7 +195,8 @@
     return row;
   };
 
-  const buildRuleRow = ({ subreddit, containerId }) => {
+  const buildRuleRow = ({ subreddit, rule }) => {
+    const normalizedRule = app.normalizeSubredditRule({ value: rule });
     const row = document.createElement("div");
     row.className = "rules-grid rule-row";
 
@@ -201,9 +211,23 @@
     containerSelect.dataset.role = "container";
     populateAccountSelect({
       select: containerSelect,
-      selectedValue: containerId ?? "",
+      selectedValue: normalizedRule.containerId,
       includeEmptyOption: true
     });
+
+    const childTabsLabel = document.createElement("label");
+    childTabsLabel.className = "rule-checkbox";
+
+    const childTabsCheckbox = document.createElement("input");
+    childTabsCheckbox.type = "checkbox";
+    childTabsCheckbox.dataset.role = "open-links-with-assigned-container";
+    childTabsCheckbox.checked = normalizedRule.openLinksWithAssignedContainer;
+
+    const childTabsCopy = document.createElement("span");
+    childTabsCopy.textContent = "Open with assigned container";
+
+    childTabsLabel.appendChild(childTabsCheckbox);
+    childTabsLabel.appendChild(childTabsCopy);
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
@@ -215,6 +239,7 @@
 
     row.appendChild(subredditInput);
     row.appendChild(containerSelect);
+    row.appendChild(childTabsLabel);
     row.appendChild(deleteButton);
     return row;
   };
@@ -225,12 +250,12 @@
     const entries = Object.entries(state.config.subredditRules);
 
     if (!entries.length) {
-      elements.rulesList.appendChild(buildRuleRow({ subreddit: "", containerId: "" }));
+      elements.rulesList.appendChild(buildRuleRow({ subreddit: "", rule: null }));
       return;
     }
 
-    for (const [subreddit, containerId] of entries) {
-      elements.rulesList.appendChild(buildRuleRow({ subreddit, containerId }));
+    for (const [subreddit, rule] of entries) {
+      elements.rulesList.appendChild(buildRuleRow({ subreddit, rule }));
     }
   };
 
@@ -279,6 +304,7 @@
       selectedValue: state.config.defaultContainerId,
       includeEmptyOption: true
     });
+    updateNoDefaultAccountHint();
     elements.doNotCloseTabsCheckbox.checked = !!state.config.doNotCloseTabs;
     elements.riskWarning.hidden = state.warningDismissed;
     elements.showWarningButton.disabled = !state.warningDismissed;
@@ -466,11 +492,15 @@
 
     const nextRules = {};
 
-    for (const [subreddit, mappedContainerId] of Object.entries(
+    for (const [subreddit, mappedRule] of Object.entries(
       state.config.subredditRules
     )) {
-      if (mappedContainerId !== containerId) {
-        nextRules[subreddit] = mappedContainerId;
+      const ruleContainerId = app.normalizeSubredditRule({
+        value: mappedRule
+      }).containerId;
+
+      if (ruleContainerId !== containerId) {
+        nextRules[subreddit] = mappedRule;
       }
     }
 
@@ -500,6 +530,9 @@
     for (const row of rows) {
       const subredditInput = row.querySelector("[data-role='subreddit']");
       const containerSelect = row.querySelector("[data-role='container']");
+      const childTabsCheckbox = row.querySelector(
+        "[data-role='open-links-with-assigned-container']"
+      );
       const subreddit = app.normalizeSubreddit({ value: subredditInput.value });
       const containerId = containerSelect.value;
 
@@ -515,7 +548,10 @@
         throw new Error("Duplicate rule for r/" + subreddit + ".");
       }
 
-      nextRules[subreddit] = containerId;
+      nextRules[subreddit] = {
+        containerId,
+        openLinksWithAssignedContainer: !!childTabsCheckbox?.checked
+      };
     }
 
     await app.Storage.patchConfig({ patch: { subredditRules: nextRules } });
@@ -556,6 +592,10 @@
     saveRoutingSettings().catch((error) => {
       setStatus({ message: error.message, tone: "error" });
     });
+  });
+
+  elements.defaultContainerSelect.addEventListener("change", () => {
+    updateNoDefaultAccountHint();
   });
 
   elements.themeSelect.addEventListener("change", (event) => {
@@ -613,7 +653,7 @@
   });
 
   elements.addRuleButton.addEventListener("click", () => {
-    elements.rulesList.appendChild(buildRuleRow({ subreddit: "", containerId: "" }));
+    elements.rulesList.appendChild(buildRuleRow({ subreddit: "", rule: null }));
   });
 
   elements.saveRulesButton.addEventListener("click", () => {

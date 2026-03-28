@@ -57,6 +57,10 @@
           <span>Default account</span>
           <select id="defaultContainerSelect"></select>
         </label>
+        <p id="noDefaultAccountHint" class="helper-copy" hidden>
+          When no default account is set, the current account will be used
+          unless you navigate to a subreddit that has been assigned an account.
+        </p>
 
         <div class="toggle-field">
           <label class="toggle-control" for="doNotCloseTabsCheckbox">
@@ -131,7 +135,11 @@
         <div class="section-head">
           <div>
             <h2>Subreddit rules</h2>
-            <p>Map individual subreddits to specific accounts.</p>
+            <p>
+              Map individual subreddits to specific accounts and decide whether
+              child tabs from those communities should stay in the assigned
+              container.
+            </p>
           </div>
           <div class="button-row">
             <button id="addRuleButton" type="button" class="button-secondary">
@@ -144,9 +152,17 @@
         <div class="rules-grid rules-grid-head">
           <span>Subreddit</span>
           <span>Account</span>
+          <span>Child tabs</span>
           <span>Action</span>
         </div>
         <div id="rulesList"></div>
+        <p class="helper-copy">
+          Leave <strong>Open with assigned container</strong> off to send child
+          tabs into Firefox&rsquo;s default tab context. Turn it on only when
+          those child tabs should stay in the assigned container. Direct
+          subreddit routing still wins if the new tab already has its own
+          subreddit target.
+        </p>
       </section>
 
       <section class="card">

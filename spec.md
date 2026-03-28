@@ -12,7 +12,7 @@ Users who separate Reddit activity by topic often want different communities to 
 
 - Route Reddit URLs by subreddit to the correct Firefox container.
 - Keep one Firefox container per Reddit account.
-- Support a default container for unmapped subreddits.
+- Support an optional default container for unmapped subreddits.
 - Make routing visible and adjustable from a popup.
 - Make container and subreddit mappings manageable from an options page.
 - Keep the implementation simple, explicit, and auditable.
@@ -59,7 +59,8 @@ URLs without a subreddit can fall back to the default container.
 - Watch Reddit tabs on creation and update.
 - Parse subreddit names case-insensitively and store rules in a normalized form.
 - Use `subredditRules[subreddit]` when a mapping exists.
-- Use `defaultContainerId` when no mapping exists.
+- Use `defaultContainerId` when no mapping exists, or keep the current account when no default is configured.
+- Let each subreddit rule choose whether child tabs stay in the assigned container or reopen in Firefox's default tab context when the child tab does not already have its own subreddit route.
 - If no valid target container is configured, do nothing and fail safely.
 - Reopen the current URL in the target container instead of trying to mutate the current tab's container.
 
@@ -113,8 +114,14 @@ Store configuration in `browser.storage.local`:
     { "label": "gaming", "containerId": "firefox-container-3" }
   ],
   "subredditRules": {
-    "privacy": "firefox-container-2",
-    "gaming": "firefox-container-3"
+    "privacy": {
+      "containerId": "firefox-container-2",
+      "openLinksWithAssignedContainer": true
+    },
+    "gaming": {
+      "containerId": "firefox-container-3",
+      "openLinksWithAssignedContainer": false
+    }
   }
 }
 ```
@@ -123,6 +130,8 @@ Store configuration in `browser.storage.local`:
 
 - `containerId` values must match Firefox contextual identity `cookieStoreId` values.
 - Subreddit keys should be normalized to lowercase.
+- Older string-only subreddit rule values should continue to import as `{ containerId, openLinksWithAssignedContainer: false }`.
+- Older object values using `openLinksInDefaultContainer` should continue to import by being translated to `openLinksWithAssignedContainer`.
 - Import should validate structure before replacing stored data.
 - Export should serialize only the config needed to restore behavior.
 

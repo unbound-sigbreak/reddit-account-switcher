@@ -147,9 +147,17 @@
     }
 
     const nextRules = { ...state.config.subredditRules };
+    const existingRule = app.getSubredditRule({
+      config: state.config,
+      subreddit: info.subreddit
+    });
 
     if (containerId) {
-      nextRules[info.subreddit] = containerId;
+      nextRules[info.subreddit] = {
+        containerId,
+        openLinksWithAssignedContainer:
+          existingRule?.openLinksWithAssignedContainer ?? false
+      };
     } else {
       delete nextRules[info.subreddit];
     }
@@ -213,7 +221,14 @@
         accounts: nextAccounts,
         subredditRules: {
           ...state.config.subredditRules,
-          [info.subreddit]: info.currentContainerId
+          [info.subreddit]: {
+            containerId: info.currentContainerId,
+            openLinksWithAssignedContainer:
+              app.getSubredditRule({
+                config: state.config,
+                subreddit: info.subreddit
+              })?.openLinksWithAssignedContainer ?? false
+          }
         }
       }
     });
