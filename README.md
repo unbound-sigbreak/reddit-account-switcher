@@ -51,24 +51,25 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 - It does not rewrite cookies or switch containers in place.
 - It does not implement VPN, proxy, spoofing, anti-fingerprinting, or bypass behavior.
 
-## Current Architecture
+## Suggested Listing Links
 
-- `manifest.json`
-  Firefox MV3 manifest with narrow permissions and Reddit-only host access.
-- `background.js`
-  Firefox MV3 background script for routing logic, loop prevention, storage seeding, and reroute actions.
-- `reddit-observer.js`
-  Lightweight Reddit page observer for SPA-style URL changes.
-- `lib/shared.js`
-  Shared URL parsing and routing helpers.
-- `lib/storage.js`
-  Storage sanitization, config loading, config saving, and account/container helpers.
-- `popup.html` + `popup.js`
-  Quick view and controls for the active tab.
-- `options.html` + `options.js`
-  Rule management, default account selection, routing behavior, account labels, and import/export.
-- `styles.css`
-  Shared extension styling.
+- Firefox Add-on: [https://addons.mozilla.org/en-CA/firefox/addon/reddit-account-switcher/](https://addons.mozilla.org/en-CA/firefox/addon/reddit-account-switcher/)
+- Homepage: [https://github.com/unbound-sigbreak/reddit-account-switcher](https://github.com/unbound-sigbreak/reddit-account-switcher)
+- Support site: [https://github.com/unbound-sigbreak/reddit-account-switcher/issues](https://github.com/unbound-sigbreak/reddit-account-switcher/issues)
+
+## Manual Setup
+
+You can clone this repository or download a release zip from the GitHub releases page: [https://github.com/unbound-sigbreak/reddit-account-switcher/releases](https://github.com/unbound-sigbreak/reddit-account-switcher/releases)
+
+1. In Firefox, open `about:debugging#/runtime/this-firefox`.
+2. Choose `Load Temporary Add-on`.
+3. Select the `manifest.json` file from this repo or from the extracted release zip.
+4. Open the extension options page.
+5. Create accounts directly in the extension, or use existing Firefox containers if you already have them.
+6. Use `Open Reddit login` for an account and sign into Reddit manually in that account.
+7. Choose a default account, or leave it as `No default account` to keep unmapped subreddits in the current account.
+8. Add subreddit rules or use the popup to assign the current subreddit to the current account.
+9. Leave `Open with assigned container` off if links from that subreddit should open in Firefox's default tab context. Turn it on only when those child tabs should stay in the assigned container.
 
 ## Configuration Shape
 
@@ -95,17 +96,24 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 }
 ```
 
-## Setup
+## Current Architecture
 
-1. In Firefox, open `about:debugging#/runtime/this-firefox`.
-2. Choose `Load Temporary Add-on`.
-3. Select this repo's `manifest.json`.
-4. Open the extension options page.
-5. Create accounts directly in the extension, or use existing Firefox containers if you already have them.
-6. Use `Open Reddit login` for an account and sign into Reddit manually in that account.
-7. Choose a default account, or leave it as `No default account` to keep unmapped subreddits in the current account.
-8. Add subreddit rules or use the popup to assign the current subreddit to the current account.
-9. Leave `Open with assigned container` off if links from that subreddit should open in Firefox's default tab context. Turn it on only when those child tabs should stay in the assigned container.
+- `manifest.json`
+  Firefox MV3 manifest with narrow permissions and Reddit-only host access.
+- `background.js`
+  Firefox MV3 background script for routing logic, loop prevention, storage seeding, and reroute actions.
+- `reddit-observer.js`
+  Lightweight Reddit page observer for SPA-style URL changes.
+- `lib/shared.js`
+  Shared URL parsing and routing helpers.
+- `lib/storage.js`
+  Storage sanitization, config loading, config saving, and account/container helpers.
+- `popup.html` + `popup.js`
+  Quick view and controls for the active tab.
+- `options.html` + `options.js`
+  Rule management, default account selection, routing behavior, account labels, and import/export.
+- `styles.css`
+  Shared extension styling.
 
 ## Validation
 
@@ -137,36 +145,10 @@ npm run check
 11. For a rule with `Open with assigned container` turned off, open a link in a new tab from that subreddit and confirm the new tab reopens outside the originating account unless the new tab has its own subreddit route.
 12. Turn `Open with assigned container` on for a subreddit rule and confirm links opened from that subreddit stay in the assigned container unless the new tab has its own subreddit route.
 
-## AMO Submission Notes
-
-### Suggested Summary
-
-AMO summary fields are limited to 250 characters. This summary is short enough to paste directly:
-
-`Automatically reopens Reddit subreddit pages in the correct Firefox container account, with a default account fallback for unmapped communities.`
-
-### Reviewer Notes
-
-Reddit Account Switcher routes Reddit tabs into Firefox containers so each subreddit can open under the intended account. Users create Reddit accounts themselves and sign in manually inside Firefox containers.
-
-The extension requests the `cookies` permission because Firefox requires it when an extension works with contextual identities and opens a tab into a specific `cookieStoreId`. The extension does not read, export, rewrite, or sync Reddit cookies. It only uses Firefox container IDs to reopen the same Reddit URL in the correct account container.
-
-All extension data stays in local extension storage. Stored data is limited to account labels, Firefox container IDs, the default container, subreddit routing rules, and theme preference.
-
-### Suggested Listing Links
-
-- Homepage: [https://github.com/unbound-sigbreak/reddit-account-switcher](https://github.com/unbound-sigbreak/reddit-account-switcher)
-- Support site: [https://github.com/unbound-sigbreak/reddit-account-switcher/issues](https://github.com/unbound-sigbreak/reddit-account-switcher/issues)
-
 ## Notes
 
-- The extension assumes the user manages Reddit accounts manually inside Firefox containers.
-- The UI talks about accounts, while the implementation uses Firefox containers as the technical session boundary.
-- Automatic rerouting only applies to URLs that include `/r/<subreddit>`.
 - Only `ras-` prefixed Firefox containers are treated as extension-managed accounts in the UI and delete flow.
 - Firefox requires the `cookies` permission for the contextual identities API; this extension still does not read or rewrite Reddit cookies.
 - If a stored mapping points to a missing container, the UI keeps that reference visible so it can be corrected.
-- Subreddit rules now store both the mapped account and an optional `openLinksWithAssignedContainer` flag. Older string-only imports still load with that checkbox off by default, and the earlier `openLinksInDefaultContainer` field is translated automatically.
-- System theme follows the existing Warm and Cool pair, while the new Dark and Light options use the styleguide visual system.
 - On first run, the extension seeds account labels from live Firefox containers and uses the first detected container as the default if none is set.
 - Firefox currently loads this extension via `background.scripts` in Manifest V3 instead of `background.service_worker`.
