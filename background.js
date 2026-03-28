@@ -30,17 +30,41 @@ const cleanupGuards = () => {
 const buildGuardFingerprint = ({ tab, targetContainerId }) =>
   targetContainerId + "::" + app.normalizeUrlForGuard({ rawUrl: tab.url });
 
-const setSourceGuard = ({ tabId, fingerprint }) => {
+const setSourceGuard = ({ tabId, fingerprint, normalizedUrl }) => {
   SOURCE_TAB_GUARDS.set(tabId, {
     fingerprint,
+    normalizedUrl,
     expiresAt: Date.now() + GUARD_TTL_MS
   });
 };
 
-const hasSourceGuard = ({ tabId, fingerprint }) => {
+const getSourceGuard = ({ tabId }) => {
   cleanupGuards();
-  const guard = SOURCE_TAB_GUARDS.get(tabId);
+  return SOURCE_TAB_GUARDS.get(tabId) ?? null;
+};
+
+const hasSourceGuard = ({ tabId, fingerprint }) => {
+  const guard = getSourceGuard({ tabId });
   return !!guard && guard.fingerprint === fingerprint;
+};
+
+const clearSourceGuardIfTabUrlChanged = ({ tab }) => {
+  if (!tab || typeof tab.id !== "number") {
+    return;
+  }
+
+  const guard = getSourceGuard({ tabId: tab.id });
+
+  if (!guard) {
+    return;
+  }
+
+  const currentUrl = app.getTabNavigationUrl({ tab });
+  const normalizedUrl = app.normalizeUrlForGuard({ rawUrl: currentUrl });
+
+  if (guard.normalizedUrl !== normalizedUrl) {
+    SOURCE_TAB_GUARDS.delete(tab.id);
+  }
 };
 
 const setCreatedGuard = ({ tabId, fingerprint }) => {
@@ -209,7 +233,11 @@ const rerouteTab = async ({ tab, targetContainerId, doNotCloseTabs }) => {
     return { rerouted: false, reason: "guarded" };
   }
 
-  setSourceGuard({ tabId: tab.id, fingerprint });
+  setSourceGuard({
+    tabId: tab.id,
+    fingerprint,
+    normalizedUrl: app.normalizeUrlForGuard({ rawUrl: tab.url })
+  });
 
   try {
     const createDetails = {
@@ -234,6 +262,11 @@ const rerouteTab = async ({ tab, targetContainerId, doNotCloseTabs }) => {
     if (doNotCloseTabs) {
       try {
         await restoreSourceTab({ tab });
+        const restoredTab = await browser.tabs.get(tab.id).catch(() => null);
+
+        if (restoredTab) {
+          clearSourceGuardIfTabUrlChanged({ tab: restoredTab });
+        }
       } catch (error) {
         logBackgroundError({ error });
       }
@@ -312,6 +345,7 @@ const maybeRouteTab = async ({ tab }) => {
   }
 
   const routingTab = tab.url === tabUrl ? tab : { ...tab, url: tabUrl };
+  clearSourceGuardIfTabUrlChanged({ tab: routingTab });
   const parsed = app.parseRedditUrl({ rawUrl: routingTab.url });
   const skipRedditUrlRouting =
     parsed.isReddit
