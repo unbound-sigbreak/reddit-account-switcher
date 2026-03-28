@@ -1,6 +1,6 @@
 {
   "name": "reddit-account-switcher",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "check": "node --check background.js && node --check popup.js && node --check options.js && node --check reddit-observer.js && node --check lib/shared.js && node --check lib/storage.js"
