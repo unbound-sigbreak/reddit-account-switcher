@@ -146,11 +146,13 @@ npm run check
 10. Confirm the popup shows the current subreddit and lets you update the rule.
 11. For a rule with `Open with assigned container` turned off, open a link in a new tab from that subreddit and confirm the new tab reopens outside the originating account unless the new tab has its own subreddit route.
 12. Turn `Open with assigned container` on for a subreddit rule and confirm links opened from that subreddit stay in the assigned container unless the new tab has its own subreddit route.
+13. Open the popup and options page in a narrow window or responsive mode around `360px` wide and confirm the cards, buttons, and rule rows stack cleanly without horizontal scrolling.
 
 ## Notes
 
 - Only `ras-` prefixed Firefox containers are treated as extension-managed accounts in the UI and delete flow.
 - Firefox requires the `cookies` permission for the contextual identities API; this extension still does not read or rewrite Reddit cookies.
+- Firefox for Android is not a supported routing target right now. As of Firefox 138, released on April 29, 2025, Mozilla notes that Firefox for Android no longer defines the `contextualIdentities` API or recognizes the `contextualIdentities` permission. The popup and options pages are still styled to fit narrow screens, but end-to-end account routing should be tested on Firefox desktop until Android container support exists again.
 - If a stored mapping points to a missing container, the UI keeps that reference visible so it can be corrected.
 - On first run, the extension seeds account labels from live Firefox containers and uses the first detected container as the default if none is set.
 - Firefox currently loads this extension via `background.scripts` in Manifest V3 instead of `background.service_worker`.

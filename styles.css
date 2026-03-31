@@ -158,6 +158,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+  min-width: 0;
 }
 
 .popup-shell {
@@ -177,6 +178,7 @@ body {
 .popup-panel {
   display: grid;
   gap: 14px;
+  width: 100%;
 }
 
 .page-layout {
@@ -220,6 +222,7 @@ body {
   margin: 10px 0 0;
   color: var(--muted);
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .notice-banner {
@@ -255,6 +258,7 @@ body {
   margin: 8px 0 0;
   color: var(--text);
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .notice-link {
@@ -293,6 +297,7 @@ body {
 
 .stat-value {
   font-size: 1rem;
+  overflow-wrap: anywhere;
 }
 
 .field,
@@ -563,11 +568,13 @@ button:disabled {
 .list-copy {
   display: grid;
   gap: 3px;
+  min-width: 0;
 }
 
 .list-copy span {
   color: var(--muted);
   font-size: 0.85rem;
+  overflow-wrap: anywhere;
 }
 
 .row-actions {
@@ -842,6 +849,23 @@ button:disabled {
     padding: 14px;
   }
 
+  .panel {
+    padding: 14px;
+  }
+
+  .hero {
+    padding: 16px 18px;
+  }
+
+  .hero-large {
+    padding: 18px 20px;
+  }
+
+  .hero h1 {
+    font-size: 1.58rem;
+    line-height: 1.12;
+  }
+
   .notice-banner,
   .list-row,
   .split-grid,
@@ -854,7 +878,112 @@ button:disabled {
     display: grid;
   }
 
+  .field-head,
+  .switch-row,
+  .section-head,
+  .button-row {
+    align-items: flex-start;
+  }
+
+  .field-head,
+  .switch-row,
+  .section-head {
+    flex-direction: column;
+  }
+
+  .button-row,
+  .row-actions {
+    width: 100%;
+  }
+
+  .button-row > *,
+  .row-actions > * {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .toggle-control {
+    flex-direction: column;
+  }
+
+  .notice-dismiss-button,
+  .field-narrow {
+    width: 100%;
+    max-width: none;
+  }
+
   .rules-grid-head {
     display: none;
+  }
+}
+
+@media (max-width: 520px) and (hover: none), (max-width: 520px) and (pointer: coarse) {
+  .popup-shell {
+    width: auto;
+    min-width: 0;
+    min-height: 100vh;
+  }
+
+  .page-layout,
+  .popup-panel {
+    gap: 14px;
+  }
+
+  .hero,
+  .card {
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .hero-large {
+    padding: 16px;
+  }
+
+  .hero h1 {
+    font-size: 1.4rem;
+  }
+
+  button,
+  select,
+  input[type="text"],
+  input[type="file"] {
+    width: 100%;
+  }
+
+  .toggle-field {
+    padding: 12px;
+  }
+
+  .code-panel {
+    font-size: 0.8rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .popup-shell {
+    min-height: 704px;
+  }
+
+  .popup-shell .field-head {
+    align-items: baseline;
+    flex-direction: row;
+  }
+
+  .popup-shell .switch-row {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .popup-shell .switch-copy {
+    flex: 1 1 auto;
+  }
+
+  .popup-shell .button-row {
+    width: auto;
+  }
+
+  .popup-shell .button-row > * {
+    flex: 0 1 auto;
+    width: auto;
   }
 }
