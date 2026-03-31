@@ -161,7 +161,8 @@ body {
 }
 
 .popup-shell {
-  min-width: 360px;
+  width: 460px;
+  min-width: 460px;
 }
 
 .page-shell {
@@ -299,6 +300,107 @@ body {
   display: grid;
   gap: 8px;
   color: var(--muted);
+}
+
+.field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field-label {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.helper-text {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.switch-field {
+  gap: 10px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.switch-copy {
+  margin: 0;
+  min-width: 0;
+  line-height: 1.45;
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 3.5rem;
+  height: 2rem;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch-track {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  border: 1px solid var(--field-border);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
+.switch:hover .switch-track {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+
+.switch-track::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0.2rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: var(--text);
+  transform: translateY(-50%);
+  transition:
+    transform 120ms ease-out,
+    background-color 120ms ease-out;
+}
+
+.switch input:focus-visible + .switch-track {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.switch input:checked + .switch-track {
+  background: color-mix(in srgb, var(--success) 22%, var(--surface));
+  border-color: color-mix(in srgb, var(--success) 66%, var(--accent));
+}
+
+.switch input:checked + .switch-track::after {
+  transform: translate(1.45rem, -50%);
+  background: #fffdfa;
+}
+
+.switch input:disabled {
+  cursor: not-allowed;
+}
+
+.switch input:disabled + .switch-track {
+  opacity: 0.6;
 }
 
 .toggle-field {

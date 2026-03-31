@@ -17,6 +17,28 @@
       </header>
 
       <section class="card">
+        <div class="field switch-field">
+          <div class="field-head">
+            <span class="field-label" id="routingEnabledLabel">Automatic account routing</span>
+            <span class="helper-text" id="routingEnabledState">Enabled</span>
+          </div>
+          <div class="switch-row">
+            <label class="switch">
+              <input
+                id="routingEnabledToggle"
+                type="checkbox"
+                aria-labelledby="routingEnabledLabel"
+              />
+              <span class="switch-track"></span>
+            </label>
+            <p class="helper-copy switch-copy">
+              Pause or resume subreddit-based tab reopening across Firefox.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
         <div class="stat-row">
           <span class="stat-label">Current subreddit</span>
           <strong class="stat-value" id="currentSubreddit">Not on Reddit</strong>

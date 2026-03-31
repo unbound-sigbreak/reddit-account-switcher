@@ -10,7 +10,9 @@
     optionsButton: document.getElementById("optionsButton"),
     popupStatus: document.getElementById("popupStatus"),
     popupSubtitle: document.getElementById("popupSubtitle"),
-    reopenButton: document.getElementById("reopenButton")
+    reopenButton: document.getElementById("reopenButton"),
+    routingEnabledState: document.getElementById("routingEnabledState"),
+    routingEnabledToggle: document.getElementById("routingEnabledToggle")
   };
 
   const state = {
@@ -24,6 +26,16 @@
   const setStatus = ({ message, tone }) => {
     elements.popupStatus.textContent = message ?? "";
     elements.popupStatus.dataset.tone = tone ?? "neutral";
+  };
+
+  const isRoutingEnabled = () => state.config?.routingEnabled !== false;
+
+  const renderRoutingToggle = () => {
+    const routingEnabled = isRoutingEnabled();
+
+    elements.routingEnabledToggle.checked = routingEnabled;
+    elements.routingEnabledToggle.disabled = !state.config;
+    elements.routingEnabledState.textContent = routingEnabled ? "Enabled" : "Paused";
   };
 
   const fillSelectOptions = () => {
@@ -55,11 +67,14 @@
 
   const render = () => {
     const info = state.routingInfo;
+    const routingEnabled = isRoutingEnabled();
+    renderRoutingToggle();
 
     if (!state.activeTab || !info) {
       elements.currentSubreddit.textContent = "No active tab";
       elements.currentContainer.textContent = "Unknown";
       elements.mappedContainer.textContent = "Unknown";
+      elements.popupSubtitle.textContent = "Inspect the active Reddit tab and adjust its mapping.";
       elements.mappingSelect.disabled = true;
       elements.assignButton.disabled = true;
       elements.loginButton.disabled = true;
@@ -109,7 +124,10 @@
     elements.mappingSelect.disabled = !info.subreddit;
     elements.assignButton.disabled = !info.canAssignToCurrentContainer;
     elements.loginButton.disabled = !info.targetExists;
-    elements.reopenButton.disabled = !info.targetExists || !info.needsReroute;
+    elements.reopenButton.disabled =
+      !routingEnabled
+      || !info.targetExists
+      || !info.needsReroute;
   };
 
   const loadState = async () => {
@@ -183,6 +201,15 @@
     if (!result || !result.ok) {
       throw new Error(result?.error ?? "Could not open Reddit login.");
     }
+  };
+
+  const setRoutingEnabled = async ({ enabled }) => {
+    state.config = await app.Storage.patchConfig({
+      patch: {
+        routingEnabled: enabled
+      }
+    });
+    await loadState();
   };
 
   const assignToCurrentContainer = async () => {
@@ -276,7 +303,13 @@
       await saveCurrentRule({ containerId });
       const info = state.routingInfo;
 
-      if (info && info.targetExists && info.needsReroute && state.activeTab) {
+      if (
+        isRoutingEnabled()
+        && info
+        && info.targetExists
+        && info.needsReroute
+        && state.activeTab
+      ) {
         const result = await browser.runtime.sendMessage({
           type: "reroute-tab-to-mapped",
           tabId: state.activeTab.id
@@ -289,9 +322,17 @@
       }
 
       setStatus({
-        message: containerId
-          ? "Updated the current subreddit account."
-          : "Current subreddit now uses the default account.",
+        message: isRoutingEnabled()
+          ? (
+            containerId
+              ? "Updated the current subreddit account."
+              : "Current subreddit now uses the default account."
+          )
+          : (
+            containerId
+              ? "Updated the current subreddit account. Automatic routing is paused."
+              : "Current subreddit now uses the default account. Automatic routing is paused."
+          ),
         tone: "success"
       });
     } catch (error) {
@@ -303,6 +344,19 @@
     assignToCurrentContainer().catch((error) => {
       setStatus({ message: error.message, tone: "error" });
     });
+  });
+
+  elements.routingEnabledToggle.addEventListener("change", (event) => {
+    const enabled = !!event.target.checked;
+
+    setRoutingEnabled({ enabled })
+      .then(() => {
+        setStatus({ message: "", tone: "neutral" });
+      })
+      .catch((error) => {
+        event.target.checked = !enabled;
+        setStatus({ message: error.message, tone: "error" });
+      });
   });
 
   elements.reopenButton.addEventListener("click", () => {
@@ -332,25 +386,33 @@
   });
 
   browser.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "local" || !changes.themePreference) {
+    if (areaName !== "local") {
       return;
     }
 
-    const nextThemePreference = app.normalizeThemePreference({
-      value: changes.themePreference.newValue
-    });
+    if (changes.themePreference) {
+      const nextThemePreference = app.normalizeThemePreference({
+        value: changes.themePreference.newValue
+      });
 
-    if (state.config) {
-      state.config = {
-        ...state.config,
-        themePreference: nextThemePreference
-      };
+      if (state.config) {
+        state.config = {
+          ...state.config,
+          themePreference: nextThemePreference
+        };
+      }
+
+      app.applyThemePreference({
+        doc: document,
+        value: nextThemePreference
+      });
     }
 
-    app.applyThemePreference({
-      doc: document,
-      value: nextThemePreference
-    });
+    if (changes.routingEnabled) {
+      loadState().catch((error) => {
+        setStatus({ message: error.message, tone: "error" });
+      });
+    }
   });
 
   loadState().catch((error) => {

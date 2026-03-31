@@ -31,6 +31,7 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 - Leave child tabs in Firefox's default tab context by default, or opt a subreddit into keeping them in its assigned container.
 - Ignore Reddit URLs that do not include `/r/<subreddit>/`, so profiles and notification pages are not forced back to the default account.
 - Optionally keep the original tab open and send it back instead of closing it after a reroute.
+- Pause or resume automatic account routing globally from the popup.
 - Handle Reddit URL changes that happen without a full page reload.
 - Prevent reroute loops with short-lived tab guards.
 - Show current subreddit, current account, and mapped account in the popup.
@@ -75,6 +76,7 @@ You can clone this repository or download a release zip from the GitHub releases
 
 ```json
 {
+  "routingEnabled": true,
   "defaultContainerId": "firefox-container-1",
   "accounts": [
     { "label": "main", "containerId": "firefox-container-1" },

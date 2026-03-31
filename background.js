@@ -356,6 +356,10 @@ const maybeRouteTab = async ({ tab }) => {
 
   const { config, containers, info } = await buildRoutingInfoForTab({ tab: routingTab });
 
+  if (!info.routingEnabled) {
+    return { routed: false, reason: "routing-disabled" };
+  }
+
   if (!skipRedditUrlRouting && info.routingEligible && info.targetContainerId && info.targetExists) {
     const fingerprint = buildGuardFingerprint({
       tab: routingTab,
@@ -455,6 +459,10 @@ const rerouteOpenRedditTabs = async () => {
 const rerouteUsingMapping = async ({ tabId }) => {
   const tab = await browser.tabs.get(tabId);
   const { config, info, tab: routingTab } = await buildRoutingInfoForTab({ tab });
+
+  if (!info.routingEnabled) {
+    return { ok: false, reason: "routing-disabled" };
+  }
 
   if (!info.isReddit) {
     return { ok: false, reason: "not-reddit" };
@@ -610,9 +618,17 @@ browser.storage.onChanged.addListener((changes, areaName) => {
     return;
   }
 
-  rerouteOpenRedditTabs().catch((error) => {
-    logBackgroundError({ error });
-  });
+  app.Storage.getConfig()
+    .then((config) => {
+      if (!config.routingEnabled) {
+        return;
+      }
+
+      return rerouteOpenRedditTabs();
+    })
+    .catch((error) => {
+      logBackgroundError({ error });
+    });
 });
 
 ensureSeedConfig().catch((error) => {
