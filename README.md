@@ -32,6 +32,7 @@ Instead of logging out and back in, the extension uses Firefox containers as the
 - Ignore Reddit URLs that do not include `/r/<subreddit>/`, so profiles and notification pages are not forced back to the default account.
 - Optionally keep the original tab open and send it back instead of closing it after a reroute.
 - Pause or resume automatic account routing globally from the popup.
+- Open the current URL in a configured account from the popup and pause automatic routing before the tab opens.
 - Handle Reddit URL changes that happen without a full page reload.
 - Prevent reroute loops with short-lived tab guards.
 - Show current subreddit, current account, and mapped account in the popup.
@@ -144,9 +145,10 @@ npm run check
 8. Turn on `Do not close tabs`, open a subreddit in the wrong account, and confirm the extension opens the mapped account in a new tab while the original tab goes back or lands on Reddit home.
 9. Use Reddit's in-page navigation and confirm the route still updates after URL changes.
 10. Confirm the popup shows the current subreddit and lets you update the rule.
-11. For a rule with `Open with assigned container` turned off, open a link in a new tab from that subreddit and confirm the new tab reopens outside the originating account unless the new tab has its own subreddit route.
-12. Turn `Open with assigned container` on for a subreddit rule and confirm links opened from that subreddit stay in the assigned container unless the new tab has its own subreddit route.
-13. Open the popup and options page in a narrow window or responsive mode around `360px` wide and confirm the cards, buttons, and rule rows stack cleanly without horizontal scrolling.
+11. Use the popup account dropdown to open the current URL in a configured account and confirm automatic routing is paused before the new tab opens.
+12. For a rule with `Open with assigned container` turned off, open a link in a new tab from that subreddit and confirm the new tab reopens outside the originating account unless the new tab has its own subreddit route.
+13. Turn `Open with assigned container` on for a subreddit rule and confirm links opened from that subreddit stay in the assigned container unless the new tab has its own subreddit route.
+14. Open the popup and options page in a narrow window or responsive mode around `360px` wide and confirm the cards, buttons, and rule rows stack cleanly without horizontal scrolling.
 
 ## Notes
 

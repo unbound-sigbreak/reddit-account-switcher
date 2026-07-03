@@ -122,24 +122,31 @@ const shouldBypassLoginFlowRouting = ({ tab, parsed }) => {
   return true;
 };
 
-const openRedditLoginTab = async ({ containerId }) => {
+const requireOpenableContainerId = async ({ containerId }) => {
   const normalizedContainerId = typeof containerId === "string" ? containerId.trim() : "";
 
   if (!normalizedContainerId) {
     throw new Error("Choose or configure an account first.");
   }
 
-  if (normalizedContainerId !== app.NO_CONTAINER_ID) {
-    const containers = await app.Storage.listAllContainers();
-    const targetExists = containers.some(
-      (container) => container.cookieStoreId === normalizedContainerId
-    );
-
-    if (!targetExists) {
-      throw new Error("That account's Firefox container is missing.");
-    }
+  if (normalizedContainerId === app.NO_CONTAINER_ID) {
+    return normalizedContainerId;
   }
 
+  const containers = await app.Storage.listAllContainers();
+  const targetExists = containers.some(
+    (container) => container.cookieStoreId === normalizedContainerId
+  );
+
+  if (!targetExists) {
+    throw new Error("That account's Firefox container is missing.");
+  }
+
+  return normalizedContainerId;
+};
+
+const openRedditLoginTab = async ({ containerId }) => {
+  const normalizedContainerId = await requireOpenableContainerId({ containerId });
   const createDetails = {
     active: true
   };
@@ -156,6 +163,46 @@ const openRedditLoginTab = async ({ containerId }) => {
   await browser.tabs.update(createdTab.id, {
     url: app.REDDIT_LOGIN_URL
   });
+
+  return {
+    ok: true,
+    tabId: createdTab.id
+  };
+};
+
+const requireOpenableUrl = ({ rawUrl }) => {
+  const url = typeof rawUrl === "string" ? rawUrl.trim() : "";
+
+  if (!url) {
+    throw new Error("No current tab URL is available.");
+  }
+
+  if (!app.isReroutableUrl({ rawUrl: url })) {
+    throw new Error("This page cannot be opened in an account tab.");
+  }
+
+  return url;
+};
+
+const openAccountUrlTab = async ({ containerId, url }) => {
+  const normalizedContainerId = await requireOpenableContainerId({ containerId });
+  const targetUrl = requireOpenableUrl({ rawUrl: url });
+  await app.Storage.patchConfig({
+    patch: {
+      routingEnabled: false
+    }
+  });
+
+  const createDetails = {
+    active: true,
+    url: targetUrl
+  };
+
+  if (normalizedContainerId !== app.NO_CONTAINER_ID) {
+    createDetails.cookieStoreId = normalizedContainerId;
+  }
+
+  const createdTab = await browser.tabs.create(createDetails);
 
   return {
     ok: true,
@@ -568,6 +615,18 @@ browser.runtime.onMessage.addListener((message, sender) => {
 
   if (message.type === "open-login-tab") {
     return openRedditLoginTab({ containerId: message.containerId })
+      .then((result) => result)
+      .catch((error) => ({
+        ok: false,
+        error: error.message
+      }));
+  }
+
+  if (message.type === "open-account-url-tab") {
+    return openAccountUrlTab({
+      containerId: message.containerId,
+      url: message.url
+    })
       .then((result) => result)
       .catch((error) => ({
         ok: false,

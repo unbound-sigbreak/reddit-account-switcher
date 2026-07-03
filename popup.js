@@ -1,6 +1,8 @@
 (function () {
   const app = globalThis.RedditAccountSwitcher;
   const elements = {
+    accountOpenButton: document.getElementById("accountOpenButton"),
+    accountOpenSelect: document.getElementById("accountOpenSelect"),
     assignButton: document.getElementById("assignButton"),
     currentContainer: document.getElementById("currentContainer"),
     currentSubreddit: document.getElementById("currentSubreddit"),
@@ -29,6 +31,66 @@
   };
 
   const isRoutingEnabled = () => state.config?.routingEnabled !== false;
+
+  const getOpenableAccountChoices = () => {
+    if (!state.config) {
+      return [];
+    }
+
+    return app.getAccountChoices({
+      containers: state.managedContainers,
+      config: state.config,
+      allContainers: state.allContainers
+    }).filter((choice) =>
+      choice.exists
+      && choice.containerId
+      && choice.containerId !== app.NO_CONTAINER_ID
+    );
+  };
+
+  const fillAccountOpenOptions = () => {
+    const select = elements.accountOpenSelect;
+    const previousValue = select.value;
+    const choices = getOpenableAccountChoices();
+    select.textContent = "";
+
+    if (!choices.length) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "No accounts configured";
+      select.appendChild(option);
+      return choices;
+    }
+
+    for (const choice of choices) {
+      const option = document.createElement("option");
+      option.value = choice.containerId;
+      option.textContent = choice.accountLabel;
+      select.appendChild(option);
+    }
+
+    select.value = choices.some((choice) => choice.containerId === previousValue)
+      ? previousValue
+      : choices[0].containerId;
+
+    return choices;
+  };
+
+  const getActiveTabOpenUrl = () => {
+    const url = state.activeTab
+      ? app.getTabNavigationUrl({ tab: state.activeTab })
+      : "";
+
+    return app.isReroutableUrl({ rawUrl: url }) ? url : "";
+  };
+
+  const renderAccountOpener = () => {
+    const choices = fillAccountOpenOptions();
+    const disabled = !state.config || !choices.length || !getActiveTabOpenUrl();
+
+    elements.accountOpenSelect.disabled = disabled;
+    elements.accountOpenButton.disabled = disabled;
+  };
 
   const renderRoutingToggle = () => {
     const routingEnabled = isRoutingEnabled();
@@ -69,6 +131,7 @@
     const info = state.routingInfo;
     const routingEnabled = isRoutingEnabled();
     renderRoutingToggle();
+    renderAccountOpener();
 
     if (!state.activeTab || !info) {
       elements.currentSubreddit.textContent = "No active tab";
@@ -212,6 +275,46 @@
     await loadState();
   };
 
+  const openSelectedAccount = async () => {
+    const containerId = elements.accountOpenSelect.value;
+    const currentUrl = getActiveTabOpenUrl();
+    const accountLabel =
+      elements.accountOpenSelect.selectedOptions[0]?.textContent
+      || "that account";
+
+    if (!containerId) {
+      setStatus({
+        message: "Choose or configure an account first.",
+        tone: "warning"
+      });
+      return;
+    }
+
+    if (!currentUrl) {
+      setStatus({
+        message: "This page cannot be opened in an account tab.",
+        tone: "warning"
+      });
+      return;
+    }
+
+    const result = await browser.runtime.sendMessage({
+      type: "open-account-url-tab",
+      containerId,
+      url: currentUrl
+    });
+
+    if (!result || !result.ok) {
+      throw new Error(result?.error ?? "Could not open that account.");
+    }
+
+    await loadState();
+    setStatus({
+      message: "Opened the current URL in " + accountLabel + ". Automatic routing is paused.",
+      tone: "warning"
+    });
+  };
+
   const assignToCurrentContainer = async () => {
     const info = state.routingInfo;
 
@@ -338,6 +441,12 @@
     } catch (error) {
       setStatus({ message: error.message, tone: "error" });
     }
+  });
+
+  elements.accountOpenButton.addEventListener("click", () => {
+    openSelectedAccount().catch((error) => {
+      setStatus({ message: error.message, tone: "error" });
+    });
   });
 
   elements.assignButton.addEventListener("click", () => {
